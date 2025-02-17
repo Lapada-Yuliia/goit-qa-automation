@@ -1,0 +1,174 @@
+# artillery run artillery/lesson5-additional.yml
+
+# Завантаження тестових даних із файлу
+# config:
+#   target: "http://httpbin.org/"
+#   phases:
+#     - duration: 1
+#       arrivalRate: 1
+#       name: Payload test
+#   payload:
+#     - path: "keywords.csv"
+#       fields:
+#         - "keyword1"
+#         - "keyword2"
+#       order: sequence
+#       # default: random
+#       skipHeader: true
+#       # default: false; skip the first row in the file
+#       # delimiter (default: ,)
+#       cast: false
+#       # to keep those fields as strings; default: true - by default, Artillery will convert fields to native types (e.g. numbers or booleans)
+#       skipEmptyLines: false
+#       # default: true
+#       # loadAll and name - set loadAll to true to provide all rows to each VU, and name to a variable name which will contain the data
+# scenarios:
+#   - name: Getting a resource
+#     flow:
+#       - get:
+#           url: "{{ target }}get?param1={{ **keyword1** }}"
+#       - post:
+#           url: "{{ target }}post?param2={{ **keyword2** }}"
+#           json:
+#             username: "Test User"
+#             password: "Temp Password"
+#           capture:
+#             - json: "$.json"
+#               as: "request_body"
+#             - json: "$.headers.Host"
+#               as: "host"
+
+# Hooks, або дії до і після сценаріїв
+# config:
+#   target: "https://api.edu.goit.global/api/v1"
+#   phases:
+#     - duration: 1
+#       arrivalRate: 1
+#       name: Hooks practice
+# before:
+#   flow:
+#     - post:
+#         url: "{{ target }}/auth/login"
+#         json:
+#           username: "artillery_test@qa.team"
+#           password: "6VcapnJ9X!Rw9UQ"
+#         capture:
+#           - json: "$.accessToken"
+#             as: "accessToken"
+#           - json: "$.refreshToken"
+#             as: "refreshToken"
+# after:
+#   flow:
+#     - get:
+#         url: "{{ target }}/auth/logout"
+#         cookie:
+#           refreshToken: "{{ refreshToken }}"
+#         headers:
+#           "Authorization": "Bearer {{ accessToken }}"
+# scenarios:
+#   - name: Get UserInfo
+#     flow:
+#       - get:
+#           url: "{{ target }}/auth/getUserInfo"
+#           headers:
+#             "Authorization": "Bearer {{ accessToken }}"
+#           capture:
+#             - json: "$.userInfo.username"
+#               as: "user-name"
+#       - log: "User name: {{ user-name }}"
+
+# DEBUG mode
+# set DEBUG=http - terminal for Windows
+# artillery run my-script.yaml
+# PowerShell:
+# $Env:DEBUG = 'http'
+# artillery run my-script.yaml
+
+# DEBUG=http,http:response artillery run test.yaml - after set
+# DEBUG=http* artillery run test.yaml
+
+# Processors, або можливість додавання JavaScript коду
+# config:
+#   target: "http://httpbin.org/"
+#   processor: "processor.js"
+#   phases:
+#     - duration: 1
+#       arrivalRate: 1
+#       name: File Upload
+# scenarios:
+#   - name: Uploading a file
+#     flow:
+#       - post:
+#           url: "{{ target }}anything"
+#           beforeRequest: "**setupMultipartFormData**"
+
+# Environments, або можливості конфігурації тесту під різні оточення
+# config:
+#   environments:
+#     stress:
+#       target: "http://stress_test_environment.org/"
+#       phases:
+#         - duration: 600
+#           arrivalRate: 6
+#           name: Stress test
+#     volume:
+#       target: "http://volume_test_environment.org/"
+#       phases:
+#         - duration: 18000
+#           arrivalRate: 1
+#           name: Volume test
+# scenarios:
+#   - name: Getting a resource
+#     flow:
+#       - get:
+#           url: "{{ target }}get"
+# # artillery run -e stress test.yaml
+
+# config:
+#   target: "http://httpbin.org/"
+#   environments:
+#     local:
+#       phases:
+#         - duration: 1
+#           arrivalRate: 1
+#           name: Phase for developing and debugging test scenarios
+#     load:
+#       phases:
+#         - duration: 1800
+#           arrivalRate: 2
+#           name: Load test configuration
+#     spike:
+#       phases:
+#         - duration: 300
+#           arrivalRate: 2
+#           name: Spike-pre Warm-Up
+#         - duration: 10
+#           arrivalRate: 20
+#           name: Spike test
+#         - duration: 300
+#           arrivalRate: 2
+#           name: Spike-post Cool-down
+# scenarios:
+#   - name: Getting a resource
+#     flow:
+#       - get:
+#           url: "{{ target }}get"
+# # artillery run -e local test.yaml
+
+# Додаткові параметри конфігурації фаз
+# phases:
+#   - duration: 60
+#     arrivalCount: 20
+# # total number of users created in duration time; one virtual user will be created approximately every 3 seconds
+# phases:
+#     - duration: 60
+#       arrivalRate: 1
+#       rampTo: 30
+# # increase every second the number of virtual users linearly; every second, the number of users will increase by 30/60 = 0.5
+# phases:
+#     - duration: 60
+#       arrivalRate: 1
+#       maxVusers: 10
+# # limit the maximum simultaneous number of users; 20 simultaneous virtual users at each time point after the 20th second of the test
+# phases:
+#     - pause: 60

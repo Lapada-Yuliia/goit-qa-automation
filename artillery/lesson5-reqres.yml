@@ -1,0 +1,31 @@
+# artillery run artillery/lesson5-reqres.yml
+
+config:
+  target: "https://reqres.in"
+  phases:
+    - duration: 1
+      arrivalRate: 4
+      name: Users tests
+  payload:
+    - path: "users.csv"
+      fields:
+        - "name"
+        - "job"
+scenarios:
+  - name: Create user
+    flow:
+      - post:
+          url: "{{ target }}/api/users"
+          json:
+            name: "{{ name }}"
+            job: "{{ job }}"
+          capture:
+            - json: "$.name"
+              as: "name"
+            - json: $.job
+              as: job_title
+            - json: $.id
+              as: user_id
+      - log: "User name value from response is: {{ name }}"
+      - log: "Job title value from response is: {{ job_title }}"
+      - log: "User id value from response is: {{ user_id }}"

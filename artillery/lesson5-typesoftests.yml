@@ -1,0 +1,78 @@
+# config:
+#   target: "http://httpbin.org/"
+#   phases:
+#     - duration: 1800
+#       # 30 minutes
+#       arrivalRate: 2
+#       # +2 users/second = +120 users/minute
+#       name: Load Test
+#   plugins:
+#     ensure: {}
+#   ensure:
+#     thresholds:
+#       - http.response_time.p95: 1000
+#     conditions:
+#       - expression: vusers.failed == 0
+#       - expression: "http.request_rate >= 3 and http.response_time.max < 600"
+# scenarios:
+#   - name: Getting a resource
+#     flow:
+#       - get:
+#           url: "{{ target }}get"
+#       - post:
+#           url: "{{ target }}post"
+#           json:
+#             username: "Test User"
+#             password: "Temp Password"
+#           capture:
+#             - json: "$.json"
+#               as: "request_body"
+#             - json: "$.headers.Host"
+#               as: "host"
+
+# config:
+#   phases:
+#     - duration: 600
+#       # 10 minutes
+#       arrivalRate: 6
+#       # +6 users/second = +360 users/minute
+#       name: Stress Test
+
+# config:
+#   phases:
+#     - duration: 300
+#       # 5 minutes
+#       arrivalRate: 1
+#       name: Scalability 1
+#     - duration: 300
+#       arrivalRate: 2
+#       name: Scalability 2
+#     - duration: 300
+#       arrivalRate: 3
+#       name: Scalability 3
+#     - duration: 300
+#       arrivalRate: 4
+#       name: Scalability 4
+#     - duration: 300
+#       arrivalRate: 5
+#       name: Scalability 5
+
+# config:
+#   phases:
+#     - duration: 300
+#       arrivalRate: 2
+#       name: Spike-pre Warm-Up
+#     - duration: 10
+#       arrivalRate: 20
+#       name: Spike test
+#     - duration: 300
+#       arrivalRate: 2
+#       name: Spike-post Cool-down
+
+# config:
+#   phases:
+#     - duration: 18000
+#       # 5 hours
+#       arrivalRate: 1
+#       # +1 user/second
+#       name: Soak/Endurance test

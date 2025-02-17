@@ -1,0 +1,43 @@
+# npm install -g artillery
+# artillery dino
+# artillery run artillery/lesson5-httpbin.yml
+
+config:
+  target: "http://httpbin.org/"
+  phases:
+    - duration: 1
+      arrivalRate: 1
+      name: Artillery First Test
+  plugins:
+    ensure: {}
+  ensure:
+    thresholds:
+      - http.response_time.min: 500
+      - http.response_time.p95: 2000
+    conditions:
+      - expression: vusers.created == 1
+      - expression: "http.request_rate >= 2 and http.response_time.max < 3000"
+      - expression: vusers.failed == 0
+      - expression: http.codes.200 == 2
+scenarios:
+  - name: Getting a resource and creating a user
+    flow:
+      - get:
+          url: "{{ target }}get"
+      - think: 3
+      # 3 seconds
+      - post:
+          url: "{{ target }}post"
+          json:
+            username: "Test User"
+            password: "Temp Password"
+          capture:
+            - json: "$.json"
+              as: "request_body"
+            - json: "$.headers.Host"
+              as: "host"
+            - json: "$.url"
+              as: "url"
+      - log: "Json value from response is: {{request_body}}"
+      - log: "Host value from response is: {{host}}"
+      - log: "URL value from response is: {{url}}"
